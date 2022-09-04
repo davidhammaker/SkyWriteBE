@@ -4,7 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from sky_write_app.models import StorageObject
-from sky_write_app.serializers import MeSerializer, StorageObjectSerializer
+from sky_write_app.serializers import (
+    KeySerializer,
+    MeSerializer,
+    StorageObjectSerializer,
+)
 from sky_write_app.utils import format_path, get_storage_name
 
 
@@ -62,3 +66,19 @@ class StorageObjectDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return StorageObject.objects.filter(user=self.request.user).all()
+
+
+class KeyCreationView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = KeySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                user_id=request.user.id,
+                key=request.data.get("key"),
+            )
+            return Response(serializer.data, 201)
+        return Response({"detail": serializer.errors}, 400)

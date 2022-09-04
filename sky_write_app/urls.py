@@ -14,4 +14,9 @@ urlpatterns = [
         views.StorageObjectDetailView.as_view(),
         name="storage-object-detail-view",
     ),
+    path(
+        "encryption_key/",
+        views.KeyCreationView.as_view(),
+        name="key-creation-view",
+    )
 ]

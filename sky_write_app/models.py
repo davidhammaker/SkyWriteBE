@@ -3,7 +3,8 @@ from django.db import models
 
 
 class StorageObject(models.Model):
-    name = models.CharField(max_length=128, blank=False, null=False)
+    name = models.TextField(blank=False, null=False)
+    name_iv = models.TextField(blank=True, null=True)
     user = models.ForeignKey(
         User,
         related_name="storage_objects",
@@ -19,3 +20,14 @@ class StorageObject(models.Model):
         on_delete=models.CASCADE,
     )
     is_file = models.BooleanField(default=True)
+
+
+class EncryptionKey(models.Model):
+    user = models.OneToOneField(
+        User,
+        related_name="encryption_key",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+    key = models.TextField(blank=False, null=False)
