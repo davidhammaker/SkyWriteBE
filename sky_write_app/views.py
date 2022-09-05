@@ -9,7 +9,8 @@ from sky_write_app.serializers import (
     MeSerializer,
     StorageObjectSerializer,
 )
-from sky_write_app.utils import format_path, get_storage_name
+from sky_write_app.utils import format_path, get_dropbox_auth_flow, get_storage_name
+from sky_write_django.settings import SECRET_KEY
 
 
 class MeView(views.APIView):
@@ -50,6 +51,10 @@ class StorageObjectView(generics.ListCreateAPIView):
             ).all()
             for obj in similar_objects:
                 if format_path(obj) == path:
+                    # This may be irrelevant... With encrypted file
+                    # names, duplicates are super unlikely and wouldn't
+                    # matter anyway. Besides, this only spots duplicate
+                    # encrypted names, not duplicate real names.
                     return Response({"detail": "Duplicate file."}, 400)
             serializer.save(
                 user_id=request.user.id,
@@ -82,3 +87,26 @@ class KeyCreationView(generics.CreateAPIView):
             )
             return Response(serializer.data, 201)
         return Response({"detail": serializer.errors}, 400)
+
+
+class DropboxAuthStartView(views.APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    @staticmethod
+    def get(request):
+        return Response({"detail": get_dropbox_auth_flow(request).start()})
+
+
+class DropboxResolutionView(views.APIView):
+    @staticmethod
+    def get(request):
+        code = request.GET.get("code")
+        state = request.GET.get("state")
+        result = get_dropbox_auth_flow(request, {SECRET_KEY: state}).finish(
+            {"code": code, "state": state}
+        )
+        # Rather than return the token, we might want to store it in the
+        # database so we can always load/save user files. We'll just
+        # send back a brief "OK" message.
+        return Response({"detail": result.access_token})

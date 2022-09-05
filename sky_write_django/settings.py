@@ -137,3 +137,8 @@ REST_FRAMEWORK = {
 
 # CORS Configuration
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Dropbox
+DBX_APP_KEY = os.environ.get("DBX_APP_KEY")
+DBX_APP_SECRET = os.environ.get("DBX_APP_SECRET")
+DBX_RESOLUTION_PATH_NAME = "dropbox-resolution"

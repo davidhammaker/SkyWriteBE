@@ -27,6 +27,8 @@ services:
       - SECRET_KEY
       - RELOAD
       - DEBUG
+      - DBX_APP_KEY
+      - DBX_APP_SECRET
     command: ./utils/startup.sh
     volumes:
       - .:/code
