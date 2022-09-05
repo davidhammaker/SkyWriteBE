@@ -1,9 +1,10 @@
+from django.contrib.auth.models import User
 from rest_framework import generics, views
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sky_write_app.models import StorageObject
+from sky_write_app.models import DropboxAccess, StorageObject
 from sky_write_app.serializers import (
     KeySerializer,
     MeSerializer,
@@ -95,18 +96,40 @@ class DropboxAuthStartView(views.APIView):
 
     @staticmethod
     def get(request):
-        return Response({"detail": get_dropbox_auth_flow(request).start()})
+        return Response(
+            {
+                "detail": (
+                    # We pass the ``url_state`` kwarg to ``start()`` to
+                    # persist the user ID through the auth flow. The
+                    # Dropbox API attaches this to the ``state``,
+                    # preceded by a ``|`` pipe.
+                    get_dropbox_auth_flow(request).start(url_state=str(request.user.id))
+                )
+            }
+        )
 
 
 class DropboxResolutionView(views.APIView):
     @staticmethod
     def get(request):
         code = request.GET.get("code")
-        state = request.GET.get("state")
+        # The ``state`` query param holds the user ID; the two are
+        # separated by a ``|`` pipe.
+        state, user_id = request.GET.get("state").split("|")
         result = get_dropbox_auth_flow(request, {SECRET_KEY: state}).finish(
             {"code": code, "state": state}
         )
-        # Rather than return the token, we might want to store it in the
-        # database so we can always load/save user files. We'll just
-        # send back a brief "OK" message.
-        return Response({"detail": result.access_token})
+
+        user = User.objects.filter(id=user_id).first()
+
+        existing_dropbox_access = DropboxAccess.objects.filter(user=user).first()
+        if existing_dropbox_access is not None:
+            dropbox_access = existing_dropbox_access
+        else:
+            dropbox_access = DropboxAccess(user=user)
+
+        dropbox_access.use_dropbox = True
+        dropbox_access.token = result.access_token
+        dropbox_access.save()
+
+        return Response({"detail": "OK"})
