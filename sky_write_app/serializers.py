@@ -87,6 +87,4 @@ class MeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_encryption_key(user):
-        if hasattr(user, "encryption_key"):
-            return user.encryption_key.key
-        return None
+        return EncryptionKey.objects.filter(user_id=user.id).first()
