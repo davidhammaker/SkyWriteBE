@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from sky_write_app.models import EncryptionKey, StorageObject
+from sky_write_app.models import StorageObject
 from sky_write_app.utils import format_path
 
 
@@ -61,12 +61,6 @@ class FolderSerializer(serializers.ModelSerializer):
         return format_path(folder)
 
 
-class KeySerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ["key", "user_id"]
-        model = EncryptionKey
-
-
 class MeSerializer(serializers.ModelSerializer):
     storage_objects = serializers.SerializerMethodField()
     encryption_key = serializers.SerializerMethodField()
@@ -87,4 +81,6 @@ class MeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_encryption_key(user):
-        return EncryptionKey.objects.filter(user_id=user.id).first()
+        if hasattr(user, "encryption_key"):
+            return user.encryption_key.key
+        return None

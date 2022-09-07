@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "sky_write_app.apps.SkyWriteAppConfig",
+    "users_app.apps.UsersAppConfig",
 ]
 
 MIDDLEWARE = [
