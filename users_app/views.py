@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from rest_framework import generics, views
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from sky_write_app.utils import get_dropbox_auth_flow
-from sky_write_django.settings import SECRET_KEY
+from sky_write_django.settings import SECRET_KEY, UI_URI
 from users_app.models import DropboxAccess
 from users_app.serializers import KeySerializer
 
@@ -68,4 +69,7 @@ class DropboxResolutionView(views.APIView):
         dropbox_access.token = result.access_token
         dropbox_access.save()
 
-        return Response({"detail": "OK"})
+        response = HttpResponseRedirect(UI_URI)
+        response.status_code = 303
+
+        return response

@@ -139,6 +139,9 @@ REST_FRAMEWORK = {
 # CORS Configuration
 CORS_ORIGIN_ALLOW_ALL = True
 
+# Front-end
+UI_URI = os.environ.get("UI_URI", "http://localhost:3000")
+
 # Dropbox
 DBX_APP_KEY = os.environ.get("DBX_APP_KEY")
 DBX_APP_SECRET = os.environ.get("DBX_APP_SECRET")
