@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from sky_write_app.utils import get_dropbox_auth_flow
 from sky_write_django.settings import SECRET_KEY, UI_URI
 from users_app.models import DropboxAccess
-from users_app.serializers import KeySerializer
+from users_app.serializers import DropboxAccessSerializer, KeySerializer
 
 
 class KeyCreationView(generics.CreateAPIView):
@@ -33,15 +33,23 @@ class DropboxAuthStartView(views.APIView):
 
     @staticmethod
     def get(request):
+        existing_dropbox_access = DropboxAccess.objects.filter(
+            user=request.user
+        ).first()
         return Response(
             {
-                "detail": (
+                "auth_url": (
                     # We pass the ``url_state`` kwarg to ``start()`` to
                     # persist the user ID through the auth flow. The
                     # Dropbox API attaches this to the ``state``,
                     # preceded by a ``|`` pipe.
                     get_dropbox_auth_flow(request).start(url_state=str(request.user.id))
-                )
+                ),
+                **(
+                    DropboxAccessSerializer(existing_dropbox_access).data
+                    if existing_dropbox_access is not None
+                    else {"use_dropbox": False, "connected": False}
+                ),
             }
         )
 
