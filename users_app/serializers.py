@@ -1,23 +1,29 @@
 from rest_framework import serializers
 
-from users_app.models import DropboxAccess, EncryptionKey
+from users_app.models import CustomConfig
 
 
 class KeySerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ["key", "user_id"]
-        model = EncryptionKey
-
-
-class DropboxAccessSerializer(serializers.ModelSerializer):
-    connected = serializers.SerializerMethodField()
+    """Partial CustomConfig serializer. User's CustomConfig object is
+    created on first login."""
 
     class Meta:
-        fields = ["use_dropbox", "connected"]
-        model = DropboxAccess
+        fields = ["encryption_key", "user_id"]
+        model = CustomConfig
+
+
+class ConfigForUISerializer(serializers.ModelSerializer):
+    """CustomConfig serialization that's safe for UI usage. No access
+    tokens provided to UI."""
+
+    dropbox_connected = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = ["default_storage", "dropbox_connected"]
+        model = CustomConfig
 
     @staticmethod
-    def get_connected(obj):
-        if obj.token is not None:
+    def get_dropbox_connected(obj):
+        if obj.dropbox_token is not None:
             return True
         return False

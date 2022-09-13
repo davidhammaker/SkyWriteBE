@@ -10,9 +10,14 @@ urlpatterns = [
         name="key-creation-view",
     ),
     path(
-        "dropbox_auth/",
-        views.DropboxAuthStartView.as_view(),
+        "config/",
+        views.ConfigRetrieveView.as_view(),
         name="dropbox-auth-start",
+    ),
+    path(
+        "storage_options/",
+        views.StorageOptionsView.as_view(),
+        name="storage-options",
     ),
     path(
         "dropbox_resolution/",
