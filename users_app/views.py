@@ -87,6 +87,10 @@ class DropboxResolutionView(views.APIView):
             user = User.objects.filter(id=user_id).first()
             config = user.custom_config
 
+            # Automatically set the default storage if there isn't one.
+            if not config.default_storage:
+                config.default_storage = "DX"
+
             config.dropbox_token = result.access_token
             config.save()
 
