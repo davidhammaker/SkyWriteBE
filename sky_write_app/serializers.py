@@ -7,8 +7,27 @@ from sky_write_app.utils import format_path
 
 class StorageObjectSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ["id", "name", "name_iv", "is_file", "folder_id", "user_id"]
+        fields = [
+            "id",
+            "name",
+            "name_iv",
+            "content_iv",
+            "is_file",
+            "folder_id",
+            "user_id",
+        ]
         model = StorageObject
+
+    def validate(self, data):
+        folder_id = self.initial_data.get("folder_id")
+        if folder_id is not None:
+            folder = StorageObject.objects.filter(id=folder_id).first()
+            if folder is None:
+                raise serializers.ValidationError(
+                    f"Invalid folder_id: StorageObject {folder_id} does not exist."
+                )
+            data["folder_id"] = folder.id
+        return data
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -81,6 +100,6 @@ class MeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_encryption_key(user):
-        if hasattr(user, "encryption_key"):
-            return user.encryption_key.key
+        if hasattr(user, "custom_config"):
+            return user.custom_config.encryption_key
         return None

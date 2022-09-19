@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from sky_write_app.models import StorageObject
 from sky_write_app.serializers import MeSerializer, StorageObjectSerializer
-from sky_write_app.utils import format_path, get_storage_name
+from sky_write_app.utils import save_file
 
 
 class MeView(views.APIView):
@@ -28,33 +28,8 @@ class StorageObjectView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            folder_id = self.request.data.get("folder_id")
-            path = get_storage_name(self.request.data["name"])
-            if folder_id is not None:
-                folder = StorageObject.objects.filter(id=folder_id).first()
-                if folder is None:
-                    return Response(
-                        {"detail": f"StorageObject {folder_id} does not exist."},
-                        400,
-                    )
-                folder_path = format_path(folder)
-                path = f"{folder_path}/{path}"
-            similar_objects = StorageObject.objects.filter(
-                user_id=self.request.user.id,
-                folder_id=folder_id,
-                name=self.request.data["name"],
-            ).all()
-            for obj in similar_objects:
-                if format_path(obj) == path:
-                    # This may be irrelevant... With encrypted file
-                    # names, duplicates are super unlikely and wouldn't
-                    # matter anyway. Besides, this only spots duplicate
-                    # encrypted names, not duplicate real names.
-                    return Response({"detail": "Duplicate file."}, 400)
-            serializer.save(
-                user_id=request.user.id,
-                folder=StorageObject.objects.filter(id=folder_id).first(),
-            )
+            serializer.save(user_id=request.user.id)
+            save_file(request, serializer.data["id"])
             return Response(serializer.data, 201)
         return Response({"detail": serializer.errors}, 400)
 
@@ -66,3 +41,11 @@ class StorageObjectDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return StorageObject.objects.filter(user=self.request.user).all()
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == 200:
+            # TODO: Change to ``update_file`` ?
+            #  Logic may be different; use PK to patch.
+            save_file(request)
+        return response

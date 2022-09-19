@@ -1,15 +1,17 @@
 from urllib.parse import quote
 
 from django.urls import reverse
-from dropbox import DropboxOAuth2Flow
+from dropbox import Dropbox, DropboxOAuth2Flow
 from rest_framework.request import Request
 
+from sky_write_app.models import StorageObject
 from sky_write_django.settings import (
     DBX_APP_KEY,
     DBX_APP_SECRET,
     DBX_RESOLUTION_PATH_NAME,
     SECRET_KEY,
 )
+from users_app.models import CustomConfig
 
 
 def get_storage_name(filename):
@@ -83,3 +85,22 @@ def get_dropbox_auth_flow(request: Request, session: dict = None):
         consumer_secret=DBX_APP_SECRET,
     )
     return auth_flow
+
+
+def save_file(request: Request, storage_object_id: int):
+
+    # Cancel this operation if the storage object is a folder.
+    if request.data.get("is_file") is False:
+        return
+
+    content = bytes(request.data.get("content", ""), "utf-8")
+    config: CustomConfig = request.user.custom_config
+    storage_object = StorageObject.objects.filter(id=storage_object_id).first()
+
+    if config.default_storage == "DX":
+        dbx = Dropbox(config.dropbox_token)
+        # TODO: What to do if access token expires?
+        #  We should check on app load, then ask for re-auth if
+        #  necessary. Could also have new-tab auth take place so no work
+        #  is lost.
+        dbx.files_upload(content, f"/{str(storage_object.file_uuid)}.txt")
