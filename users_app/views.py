@@ -91,7 +91,7 @@ class DropboxResolutionView(views.APIView):
             if not config.default_storage:
                 config.default_storage = "DX"
 
-            config.dropbox_token = result.access_token
+            config.dropbox_token = result.refresh_token
             config.save()
 
         response = HttpResponseRedirect(UI_URI)

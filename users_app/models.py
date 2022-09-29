@@ -23,7 +23,7 @@ class CustomConfig(models.Model):
     dropbox_token = models.TextField(
         blank=True,
         null=True,
-        help_text="Dropbox access token",
+        help_text="Dropbox refresh token",
     )
 
     default_storage = models.CharField(

@@ -83,6 +83,7 @@ def get_dropbox_auth_flow(request: Request, session: dict = None):
         session=session or {},
         csrf_token_session_key=SECRET_KEY,
         consumer_secret=DBX_APP_SECRET,
+        token_access_type="offline",
     )
     return auth_flow
 
@@ -98,9 +99,10 @@ def save_file(request: Request, storage_object_id: int):
     storage_object = StorageObject.objects.filter(id=storage_object_id).first()
 
     if config.default_storage == "DX":
-        dbx = Dropbox(config.dropbox_token)
-        # TODO: What to do if access token expires?
-        #  We should check on app load, then ask for re-auth if
-        #  necessary. Could also have new-tab auth take place so no work
-        #  is lost.
+        dbx = Dropbox(
+            oauth2_refresh_token=config.dropbox_token,
+            app_key=DBX_APP_KEY,
+            app_secret=DBX_APP_SECRET,
+        )
+        dbx.refresh_access_token()
         dbx.files_upload(content, f"/{str(storage_object.file_uuid)}.txt")
