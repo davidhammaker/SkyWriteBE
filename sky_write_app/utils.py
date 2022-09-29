@@ -1,5 +1,7 @@
+import typing as t
 from urllib.parse import quote
 
+import requests
 from django.urls import reverse
 from dropbox import Dropbox, DropboxOAuth2Flow
 from rest_framework.request import Request
@@ -106,3 +108,32 @@ def save_file(request: Request, storage_object_id: int):
         )
         dbx.refresh_access_token()
         dbx.files_upload(content, f"/{str(storage_object.file_uuid)}.txt")
+
+
+def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
+
+    if request.data.get("is_file") is False:
+        return
+
+    config: CustomConfig = request.user.custom_config
+    storage_object = StorageObject.objects.filter(id=storage_object_id).first()
+
+    if config.default_storage == "DX":
+        dbx = Dropbox(
+            oauth2_refresh_token=config.dropbox_token,
+            app_key=DBX_APP_KEY,
+            app_secret=DBX_APP_SECRET,
+        )
+        dbx.refresh_access_token()
+
+        # Get file metadata and the Dropbox response, which holds the
+        # POST request we'll use to retrieve file content.
+        _metadata, dbx_response = (
+            dbx.files_download(f"/{str(storage_object.file_uuid)}.txt")
+        )
+        post_request_obj = dbx_response.request
+
+        # Send the POST request and receive file content.
+        session = requests.Session()
+        file_response = session.send(post_request_obj)
+        return "".join([line.decode() for line in file_response.iter_lines()])
