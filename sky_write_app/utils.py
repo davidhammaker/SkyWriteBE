@@ -4,6 +4,7 @@ from urllib.parse import quote
 import requests
 from django.urls import reverse
 from dropbox import Dropbox, DropboxOAuth2Flow
+from dropbox.files import WriteMode
 from rest_framework.request import Request
 
 from sky_write_app.models import StorageObject
@@ -107,7 +108,11 @@ def save_file(request: Request, storage_object_id: int):
             app_secret=DBX_APP_SECRET,
         )
         dbx.refresh_access_token()
-        dbx.files_upload(content, f"/{str(storage_object.file_uuid)}.txt")
+        dbx.files_upload(
+            content,
+            f"/{str(storage_object.file_uuid)}.txt",
+            mode=WriteMode.overwrite,
+        )
 
 
 def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
@@ -128,8 +133,8 @@ def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
 
         # Get file metadata and the Dropbox response, which holds the
         # POST request we'll use to retrieve file content.
-        _metadata, dbx_response = (
-            dbx.files_download(f"/{str(storage_object.file_uuid)}.txt")
+        _metadata, dbx_response = dbx.files_download(
+            f"/{str(storage_object.file_uuid)}.txt"
         )
         post_request_obj = dbx_response.request
 

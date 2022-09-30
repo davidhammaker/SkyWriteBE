@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from sky_write_app.models import StorageObject
 from sky_write_app.serializers import MeSerializer, StorageObjectSerializer
-from sky_write_app.utils import save_file, load_file
+from sky_write_app.utils import load_file, save_file
 
 
 class MeView(views.APIView):
@@ -46,13 +46,10 @@ class StorageObjectDetailView(generics.RetrieveUpdateDestroyAPIView):
         response = super().get(self, request, *args, **kwargs)
         if response.status_code == 200:
             response.data["content"] = load_file(request, self.kwargs["pk"])
-            print(response, response.__dict__)
         return response
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         if response.status_code == 200:
-            # TODO: Change to ``update_file`` ?
-            #  Logic may be different; use PK to patch.
             save_file(request, self.kwargs["pk"])
         return response
