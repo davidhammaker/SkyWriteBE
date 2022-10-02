@@ -8,4 +8,6 @@ data
 db.sqlite3
 postgres
 
+local_storage/*.txt
+
 .coverage

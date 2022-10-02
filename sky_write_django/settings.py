@@ -9,9 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY", "django-insecure-_l_x#io3y*@2scz64-hjds3#=gc@3wz_0x&ioouj6hlh5m+y8m"
-)
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
@@ -146,3 +144,6 @@ UI_URI = os.environ.get("UI_URI", "http://localhost:3000")
 DBX_APP_KEY = os.environ.get("DBX_APP_KEY")
 DBX_APP_SECRET = os.environ.get("DBX_APP_SECRET")
 DBX_RESOLUTION_PATH_NAME = "dropbox-resolution"
+
+# Development settings
+DEV = os.environ.get("DEV", 0)

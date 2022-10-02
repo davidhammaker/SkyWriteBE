@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class DefaultStorage(models.TextChoices):
     """Enum for all possible storage options."""
 
+    LOCAL_STORAGE = "LS", _("Local Storage")  # For development only; not for production
     DROPBOX = "DX", _("Dropbox")
 
     __empty__ = _("(Not selected)")

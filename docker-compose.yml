@@ -27,12 +27,14 @@ services:
       - SECRET_KEY
       - RELOAD
       - DEBUG
+      - DEV
       - DBX_APP_KEY
       - DBX_APP_SECRET
     command: ./utils/startup.sh
     volumes:
       - .:/code
       - ./docker_utils/web:/code/utils
+      - ./local_storage:/code/local_storage
     ports:
       - "8000:8000"
     depends_on:

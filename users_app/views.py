@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from sky_write_app.utils import get_dropbox_auth_flow
-from sky_write_django.settings import SECRET_KEY, UI_URI
+from sky_write_django.settings import DEV, SECRET_KEY, UI_URI
 from users_app.models import CustomConfig, DefaultStorage
 from users_app.serializers import ConfigForUISerializer, KeySerializer
 
@@ -66,7 +66,12 @@ class StorageOptionsView(views.APIView):
 
     @staticmethod
     def get(_request):
-        return Response({str(item.label): item.value for item in list(DefaultStorage)})
+        storage_options = {}
+        for item in list(DefaultStorage):
+            print(DEV, item.value)
+            if DEV or item.value != "LS":
+                storage_options[str(item.label)] = item.value
+        return Response(storage_options)
 
 
 class DropboxResolutionView(views.APIView):

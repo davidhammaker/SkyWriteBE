@@ -97,9 +97,12 @@ def save_file(request: Request, storage_object_id: int):
     if request.data.get("is_file") is False:
         return
 
-    content = bytes(request.data.get("content", ""), "utf-8")
+    string_content = request.data.get("content", "")
+    bytes_content = bytes(string_content, "utf-8")
     config: CustomConfig = request.user.custom_config
     storage_object = StorageObject.objects.filter(id=storage_object_id).first()
+
+    filename = f"{str(storage_object.file_uuid)}.txt"
 
     if config.default_storage == "DX":
         dbx = Dropbox(
@@ -108,11 +111,11 @@ def save_file(request: Request, storage_object_id: int):
             app_secret=DBX_APP_SECRET,
         )
         dbx.refresh_access_token()
-        dbx.files_upload(
-            content,
-            f"/{str(storage_object.file_uuid)}.txt",
-            mode=WriteMode.overwrite,
-        )
+        dbx.files_upload(bytes_content, f"/{filename}", mode=WriteMode.overwrite)
+
+    elif config.default_storage == "LS":
+        with open(f"/code/local_storage/{filename}", "w") as file:
+            file.writelines([string_content])
 
 
 def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
@@ -122,6 +125,8 @@ def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
 
     config: CustomConfig = request.user.custom_config
     storage_object = StorageObject.objects.filter(id=storage_object_id).first()
+
+    filename = f"{str(storage_object.file_uuid)}.txt"
 
     if config.default_storage == "DX":
         dbx = Dropbox(
@@ -133,12 +138,14 @@ def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
 
         # Get file metadata and the Dropbox response, which holds the
         # POST request we'll use to retrieve file content.
-        _metadata, dbx_response = dbx.files_download(
-            f"/{str(storage_object.file_uuid)}.txt"
-        )
+        _metadata, dbx_response = dbx.files_download(f"/{filename}")
         post_request_obj = dbx_response.request
 
         # Send the POST request and receive file content.
         session = requests.Session()
         file_response = session.send(post_request_obj)
         return "".join([line.decode() for line in file_response.iter_lines()])
+
+    elif config.default_storage == "LS":
+        with open(f"/code/local_storage/{filename}", "r") as file:
+            return "".join(list(file.readlines()))
