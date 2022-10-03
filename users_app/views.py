@@ -68,7 +68,6 @@ class StorageOptionsView(views.APIView):
     def get(_request):
         storage_options = {}
         for item in list(DefaultStorage):
-            print(DEV, item.value)
             if DEV or item.value != "LS":
                 storage_options[str(item.label)] = item.value
         return Response(storage_options)
