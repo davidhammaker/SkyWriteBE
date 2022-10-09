@@ -6,18 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users_app', '0002_customconfig_remove_encryptionkey_user_and_more'),
+        ("users_app", "0002_customconfig_remove_encryptionkey_user_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customconfig',
-            name='default_storage',
-            field=models.CharField(choices=[(None, '(Not selected)'), ('LS', 'Local Storage'), ('DX', 'Dropbox')], max_length=2),
+            model_name="customconfig",
+            name="default_storage",
+            field=models.CharField(
+                choices=[
+                    (None, "(Not selected)"),
+                    ("LS", "Local Storage"),
+                    ("DX", "Dropbox"),
+                ],
+                max_length=2,
+            ),
         ),
         migrations.AlterField(
-            model_name='customconfig',
-            name='dropbox_token',
-            field=models.TextField(blank=True, help_text='Dropbox refresh token', null=True),
+            model_name="customconfig",
+            name="dropbox_token",
+            field=models.TextField(
+                blank=True, help_text="Dropbox refresh token", null=True
+            ),
         ),
     ]

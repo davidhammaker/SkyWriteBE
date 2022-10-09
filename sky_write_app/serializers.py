@@ -15,6 +15,7 @@ class StorageObjectSerializer(serializers.ModelSerializer):
             "is_file",
             "folder_id",
             "user_id",
+            "ordering_parameter",
         ]
         model = StorageObject
 
@@ -65,14 +66,18 @@ class FolderSerializer(serializers.ModelSerializer):
     def get_files(folder):
         return [
             FileSerializer(file).data
-            for file in folder.contents.filter(is_file=True).all()
+            for file in folder.contents.filter(is_file=True)
+            .order_by("ordering_parameter")
+            .all()
         ]
 
     @staticmethod
     def get_folders(folder):
         return [
             FolderSerializer(sub_folder).data
-            for sub_folder in folder.contents.filter(is_file=False).all()
+            for sub_folder in folder.contents.filter(is_file=False)
+            .order_by("ordering_parameter")
+            .all()
         ]
 
     @staticmethod
@@ -91,7 +96,11 @@ class MeSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_storage_objects(user):
         ret = []
-        for storage_object in user.storage_objects.filter(folder_id=None).all():
+        for storage_object in (
+            user.storage_objects.filter(folder_id=None)
+            .order_by("ordering_parameter")
+            .all()
+        ):
             if storage_object.is_file:
                 ret.append(FileSerializer(storage_object).data)
             else:

@@ -24,3 +24,9 @@ class StorageObject(models.Model):
     )
     is_file = models.BooleanField(default=True)
     file_uuid = models.UUIDField(default=uuid4)
+    ordering_parameter = models.DecimalField(
+        max_digits=26,
+        decimal_places=11,
+        blank=True,
+        null=False,
+    )
