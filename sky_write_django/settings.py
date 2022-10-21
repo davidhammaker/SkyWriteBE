@@ -147,3 +147,6 @@ DBX_RESOLUTION_PATH_NAME = "dropbox-resolution"
 
 # Development settings
 DEV = os.environ.get("DEV", 0)
+
+# sky_write_app settings
+ORDERING_MAX = 1000000000000000

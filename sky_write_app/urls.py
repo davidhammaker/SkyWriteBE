@@ -14,4 +14,9 @@ urlpatterns = [
         views.StorageObjectDetailView.as_view(),
         name="storage-object-detail-view",
     ),
+    path(
+        "re_order/",
+        views.StorageObjectReOrderView.as_view(),
+        name="storage-object-re-order-view",
+    ),
 ]
