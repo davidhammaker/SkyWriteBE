@@ -33,7 +33,6 @@ class StorageObjectView(generics.ListCreateAPIView):
         if serializer.is_valid():
             last_object = (
                 StorageObject.objects.filter(
-                    is_file=request.data.get("is_file"),
                     folder_id=request.data.get("folder_id"),
                 )
                 .order_by("-ordering_parameter")
