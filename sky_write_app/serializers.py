@@ -33,19 +33,14 @@ class StorageObjectSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     files = serializers.SerializerMethodField()
-    folders = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["id", "name", "name_iv", "is_file", "files", "folders", "path"]
+        fields = ["id", "name", "name_iv", "is_file", "files", "path"]
         model = StorageObject
 
     @staticmethod
-    def get_files(folder):
-        return []
-
-    @staticmethod
-    def get_folders(folder):
+    def get_files(_):
         return []
 
     @staticmethod
@@ -55,30 +50,21 @@ class FileSerializer(serializers.ModelSerializer):
 
 class FolderSerializer(serializers.ModelSerializer):
     files = serializers.SerializerMethodField()
-    folders = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["id", "name", "name_iv", "is_file", "files", "folders", "path"]
+        fields = ["id", "name", "name_iv", "is_file", "files", "path"]
         model = StorageObject
 
     @staticmethod
     def get_files(folder):
-        return [
-            FileSerializer(file).data
-            for file in folder.contents.filter(is_file=True)
-            .order_by("ordering_parameter")
-            .all()
-        ]
-
-    @staticmethod
-    def get_folders(folder):
-        return [
-            FolderSerializer(sub_folder).data
-            for sub_folder in folder.contents.filter(is_file=False)
-            .order_by("ordering_parameter")
-            .all()
-        ]
+        ret = []
+        for storage_obj in folder.contents.order_by("ordering_parameter").all():
+            if storage_obj.is_file:
+                ret.append(FileSerializer(storage_obj).data)
+            else:
+                ret.append(FolderSerializer(storage_obj).data)
+        return ret
 
     @staticmethod
     def get_path(folder):
