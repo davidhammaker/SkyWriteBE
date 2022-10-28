@@ -34,6 +34,7 @@ class StorageObjectView(generics.ListCreateAPIView):
             last_object = (
                 StorageObject.objects.filter(
                     folder_id=request.data.get("folder_id"),
+                    user=request.user,
                 )
                 .order_by("-ordering_parameter")
                 .first()
@@ -127,9 +128,7 @@ class StorageObjectReOrderView(views.APIView):
                 next_highest_param = 0
             else:
                 next_highest_param = next_highest_obj.ordering_parameter
-            print(to_obj.ordering_parameter, next_highest_param)
             new_order_param = (to_obj.ordering_parameter + next_highest_param) / 2
-        print(new_order_param)
         from_obj.ordering_parameter = new_order_param
         if "folder_id" in request.data:
             from_obj.folder_id = request.data["folder_id"]
