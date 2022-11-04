@@ -5,6 +5,11 @@ from users_app import views
 
 urlpatterns = [
     path(
+        "create_user/",
+        views.UserCreationView.as_view(),
+        name="user-creation",
+    ),
+    path(
         "encryption_key/",
         views.KeyCreationView.as_view(),
         name="key-creation-view",

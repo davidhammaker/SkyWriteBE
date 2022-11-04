@@ -8,7 +8,21 @@ from rest_framework.response import Response
 from sky_write_app.utils import get_dropbox_auth_flow
 from sky_write_django.settings import DEV, SECRET_KEY, UI_URI
 from users_app.models import CustomConfig, DefaultStorage
-from users_app.serializers import ConfigForUISerializer, KeySerializer
+from users_app.serializers import ConfigForUISerializer, KeySerializer, UserSerializer
+
+
+class UserCreationView(generics.CreateAPIView):
+    """A class for creating a new user."""
+
+    serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        """
+        Hash password and create user.
+        """
+        new_user = serializer.save()
+        new_user.set_password(new_user.password)
+        new_user.save()
 
 
 class KeyCreationView(generics.CreateAPIView):
