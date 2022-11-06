@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from sky_write_app.utils import get_dropbox_auth_flow
-from sky_write_django.settings import DEV, SECRET_KEY, UI_URI
+from sky_write_django.settings import DBX_APP_KEY, DEV, SECRET_KEY, UI_URI
 from users_app.models import CustomConfig, DefaultStorage
 from users_app.serializers import ConfigForUISerializer, KeySerializer, UserSerializer
 
@@ -68,6 +68,7 @@ class ConfigRetrieveView(generics.RetrieveUpdateAPIView):
                     # Dropbox API attaches this to the ``state``,
                     # preceded by a ``|`` pipe.
                     get_dropbox_auth_flow(request).start(url_state=str(request.user.id))
+                    if DBX_APP_KEY is not None else None
                 ),
                 **ConfigForUISerializer(config).data,
             }
