@@ -68,7 +68,8 @@ class ConfigRetrieveView(generics.RetrieveUpdateAPIView):
                     # Dropbox API attaches this to the ``state``,
                     # preceded by a ``|`` pipe.
                     get_dropbox_auth_flow(request).start(url_state=str(request.user.id))
-                    if DBX_APP_KEY is not None else None
+                    if DBX_APP_KEY is not None
+                    else None
                 ),
                 **ConfigForUISerializer(config).data,
             }

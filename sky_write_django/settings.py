@@ -14,7 +14,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", os.environ.get("BE_HOST", "*")]
+CSRF_TRUSTED_ORIGINS = [*os.environ.get("BE_TRUSTED_ORIGINS", "").split(",")]
 
 
 # Application definition
@@ -74,8 +75,8 @@ DATABASES = {
         "NAME": os.environ.get("POSTGRES_DB", default="postgres"),
         "USER": os.environ.get("POSTGRES_USER", default="postgres"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", default="postgres"),
-        "HOST": "db",
-        "PORT": 5432,
+        "HOST": os.environ.get("DB_HOST", default="db"),
+        "PORT": os.environ.get("DB_PORT", default=5432),
     },
 }
 
