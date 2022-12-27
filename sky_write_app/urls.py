@@ -15,6 +15,16 @@ urlpatterns = [
         name="storage-object-detail-view",
     ),
     path(
+        "folder/",
+        views.RootContentsView.as_view(),
+        name="root-contents-view",
+    ),
+    path(
+        "folder/<int:pk>/",
+        views.FolderContentsView.as_view(),
+        name="folder-contents-view",
+    ),
+    path(
         "re_order/",
         views.StorageObjectReOrderView.as_view(),
         name="storage-object-re-order-view",

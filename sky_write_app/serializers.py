@@ -36,7 +36,15 @@ class FileSerializer(serializers.ModelSerializer):
     path = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["id", "name", "name_iv", "is_file", "files", "path"]
+        fields = [
+            "id",
+            "name",
+            "name_iv",
+            "is_file",
+            "files",
+            "path",
+            "ordering_parameter",
+        ]
         model = StorageObject
 
     @staticmethod
@@ -53,7 +61,15 @@ class FolderSerializer(serializers.ModelSerializer):
     path = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["id", "name", "name_iv", "is_file", "files", "path"]
+        fields = [
+            "id",
+            "name",
+            "name_iv",
+            "is_file",
+            "files",
+            "path",
+            "ordering_parameter",
+        ]
         model = StorageObject
 
     @staticmethod
