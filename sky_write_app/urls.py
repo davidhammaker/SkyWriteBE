@@ -29,4 +29,9 @@ urlpatterns = [
         views.StorageObjectReOrderView.as_view(),
         name="storage-object-re-order-view",
     ),
+    path(
+        "re_organize/",
+        views.StorageObjectReOrganizeView.as_view(),
+        name="storage-object-re-organize-view",
+    ),
 ]

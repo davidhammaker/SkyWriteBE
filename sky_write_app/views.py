@@ -149,3 +149,51 @@ class StorageObjectReOrderView(views.APIView):
             obj.save()
 
         return Response("OK")
+
+
+class StorageObjectReOrganizeView(views.APIView):
+    """An APIView class for re-ordering Storage Objects."""
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    @staticmethod
+    def post(request):
+        if {"files", "folder_id"} - set(request.data) != set():
+            return Response(
+                {"detail": "Request body must contain 'files' and 'folder_id'."},
+                400,
+            )
+
+        objects = []
+        for obj_id in request.data["files"]:
+            obj = StorageObject.objects.filter(id=obj_id, user=request.user).first()
+            if obj is None:
+                return Response(
+                    {"detail": f"An invalid object ID was sent ({obj_id})"}, 400
+                )
+            objects.append(obj)
+
+        folder_id = request.data["folder_id"]
+        folder = StorageObject.objects.filter(id=folder_id, user=request.user).first()
+        if folder is None or folder.is_file:
+            return Response(
+                {"detail": f"An invalid folder ID was sent ({folder_id})"}, 400
+            )
+
+        existing_object = (
+            StorageObject.objects.filter(folder_id=folder_id, user=request.user)
+            .order_by("-ordering_parameter")
+            .first()
+        )
+        if existing_object is not None:
+            ordering_base = existing_object.ordering_parameter
+        else:
+            ordering_base = 0
+        ordering_constant = (ORDERING_MAX - ordering_base) / (len(objects) + 2)
+        for index, obj in enumerate(objects):
+            obj.ordering_parameter = ordering_base + ordering_constant * (index + 1)
+            obj.folder_id = folder_id
+            obj.save()
+
+        return Response("OK")
