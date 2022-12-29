@@ -176,7 +176,7 @@ class StorageObjectReOrganizeView(views.APIView):
 
         folder_id = request.data["folder_id"]
         folder = StorageObject.objects.filter(id=folder_id, user=request.user).first()
-        if folder is None or folder.is_file:
+        if folder_id is not None and (folder is None or folder.is_file):
             return Response(
                 {"detail": f"An invalid folder ID was sent ({folder_id})"}, 400
             )
