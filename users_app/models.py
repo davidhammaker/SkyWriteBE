@@ -20,6 +20,10 @@ class CustomConfig(models.Model):
         null=False,
         on_delete=models.CASCADE,
     )
+    last_file = models.IntegerField(
+        blank=True,
+        null=True,
+    )
     encryption_key = models.TextField(blank=False, null=False)
     dropbox_token = models.TextField(
         blank=True,

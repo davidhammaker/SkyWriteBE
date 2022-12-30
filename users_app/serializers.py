@@ -38,7 +38,7 @@ class ConfigForUISerializer(serializers.ModelSerializer):
     dropbox_connected = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["default_storage", "dropbox_connected"]
+        fields = ["default_storage", "dropbox_connected", "last_file"]
         model = CustomConfig
 
     @staticmethod

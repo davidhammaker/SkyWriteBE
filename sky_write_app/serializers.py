@@ -90,9 +90,10 @@ class FolderSerializer(serializers.ModelSerializer):
 class MeSerializer(serializers.ModelSerializer):
     storage_objects = serializers.SerializerMethodField()
     encryption_key = serializers.SerializerMethodField()
+    last_file = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["username", "storage_objects", "encryption_key"]
+        fields = ["username", "storage_objects", "encryption_key", "last_file"]
         model = User
 
     @staticmethod
@@ -113,4 +114,10 @@ class MeSerializer(serializers.ModelSerializer):
     def get_encryption_key(user):
         if hasattr(user, "custom_config"):
             return user.custom_config.encryption_key
+        return None
+
+    @staticmethod
+    def get_last_file(user):
+        if hasattr(user, "custom_config"):
+            return user.custom_config.last_file
         return None

@@ -15,7 +15,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = ["localhost", os.environ.get("BE_HOST", "*")]
-CSRF_TRUSTED_ORIGINS = [*os.environ.get("BE_TRUSTED_ORIGINS", "").split(",")]
+CSRF_TRUSTED_ORIGINS = [
+    *os.environ.get("BE_TRUSTED_ORIGINS", "http://localhost").split(",")
+]
 
 
 # Application definition
