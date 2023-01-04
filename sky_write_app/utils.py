@@ -1,3 +1,4 @@
+import os
 import typing as t
 from urllib.parse import quote
 
@@ -149,3 +150,35 @@ def load_file(request: Request, storage_object_id: int) -> t.Optional[str]:
     elif config.default_storage == "LS":
         with open(f"/code/local_storage/{filename}", "r") as file:
             return "".join(list(file.readlines()))
+
+
+def delete_object(request: Request, storage_object_id: int, recursive: bool = False):
+
+    config: CustomConfig = request.user.custom_config
+    storage_object = StorageObject.objects.filter(id=storage_object_id).first()
+
+    filename = f"{str(storage_object.file_uuid)}.txt"
+
+    if storage_object.is_file:
+        if config.default_storage == "DX":
+            dbx = Dropbox(
+                oauth2_refresh_token=config.dropbox_token,
+                app_key=DBX_APP_KEY,
+                app_secret=DBX_APP_SECRET,
+            )
+            dbx.refresh_access_token()
+
+            _delete_result = dbx.files_delete_v2(f"/{filename}")
+
+        elif config.default_storage == "LS":
+            os.remove(f"/code/local_storage/{filename}")
+
+    else:
+        for obj in storage_object.contents.all():
+            if recursive:
+                delete_object(request, obj.id, recursive=True)
+            else:
+                obj.folder_id = storage_object.folder_id
+                obj.save()
+
+    storage_object.delete()

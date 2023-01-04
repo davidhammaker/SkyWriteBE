@@ -11,7 +11,7 @@ from sky_write_app.serializers import (
     MeSerializer,
     StorageObjectSerializer,
 )
-from sky_write_app.utils import load_file, save_file
+from sky_write_app.utils import delete_object, load_file, save_file
 from sky_write_django.settings import ORDERING_MAX
 
 
@@ -83,6 +83,10 @@ class StorageObjectDetailView(generics.RetrieveUpdateDestroyAPIView):
         if response.status_code == 200:
             save_file(request, self.kwargs["pk"])
         return response
+
+    def destroy(self, request, *args, **kwargs):
+        delete_object(request, kwargs["pk"], "recursive" in request.query_params)
+        return Response(status=204)
 
 
 class RootContentsView(views.APIView):
