@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from sky_write_app.models import StorageObject
-from sky_write_app.utils import format_path
+from sky_write_app.utils import format_path, get_calculated_path_ids
 
 
 class StorageObjectSerializer(serializers.ModelSerializer):
@@ -91,9 +91,16 @@ class MeSerializer(serializers.ModelSerializer):
     storage_objects = serializers.SerializerMethodField()
     encryption_key = serializers.SerializerMethodField()
     last_file = serializers.SerializerMethodField()
+    path_to_last_file = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ["username", "storage_objects", "encryption_key", "last_file"]
+        fields = [
+            "username",
+            "storage_objects",
+            "encryption_key",
+            "last_file",
+            "path_to_last_file",
+        ]
         model = User
 
     @staticmethod
@@ -121,3 +128,11 @@ class MeSerializer(serializers.ModelSerializer):
         if hasattr(user, "custom_config"):
             return user.custom_config.last_file
         return None
+
+    @staticmethod
+    def get_path_to_last_file(user):
+        if not hasattr(user, "custom_config"):
+            return None
+        file_id = user.custom_config.last_file
+        obj = StorageObject.objects.filter(id=file_id).first()
+        return get_calculated_path_ids(obj)

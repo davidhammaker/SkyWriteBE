@@ -57,6 +57,16 @@ def format_path(storage_object):
     return path
 
 
+def get_calculated_path_ids(obj: StorageObject):
+    """Get a list of IDs for folders containing a given object."""
+    calculated_path_reversed = []
+    parent_folder = obj.folder
+    while parent_folder is not None:
+        calculated_path_reversed.append(parent_folder.id)
+        parent_folder = parent_folder.folder
+    return reversed(calculated_path_reversed)
+
+
 def get_dropbox_auth_flow(request: Request, session: dict = None):
     """
     Get the Auth flow object for accessing a user's Dropbox account.
@@ -168,7 +178,7 @@ def delete_object(request: Request, storage_object_id: int, recursive: bool = Fa
             )
             dbx.refresh_access_token()
 
-            _delete_result = dbx.files_delete_v2(f"/{filename}")
+            dbx.files_delete_v2(f"/{filename}")
 
         elif config.default_storage == "LS":
             os.remove(f"/code/local_storage/{filename}")
