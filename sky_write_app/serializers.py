@@ -126,7 +126,10 @@ class MeSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_last_file(user):
         if hasattr(user, "custom_config"):
-            return user.custom_config.last_file
+            last_file_id = user.custom_config.last_file
+            last_obj = StorageObject.objects.filter(id=last_file_id).first()
+            if last_obj is not None:
+                return user.custom_config.last_file
         return None
 
     @staticmethod
@@ -137,4 +140,6 @@ class MeSerializer(serializers.ModelSerializer):
         if file_id is None:
             return None
         obj = StorageObject.objects.filter(id=file_id).first()
-        return get_calculated_path_ids(obj)
+        if obj is not None:
+            return get_calculated_path_ids(obj)
+        return None
