@@ -134,5 +134,7 @@ class MeSerializer(serializers.ModelSerializer):
         if not hasattr(user, "custom_config"):
             return None
         file_id = user.custom_config.last_file
+        if file_id is None:
+            return None
         obj = StorageObject.objects.filter(id=file_id).first()
         return get_calculated_path_ids(obj)

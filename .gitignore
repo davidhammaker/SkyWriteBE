@@ -9,5 +9,7 @@ db.sqlite3
 postgres
 
 local_storage/*.txt
+builds
+build.py
 
 .coverage
